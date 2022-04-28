@@ -4,7 +4,7 @@
 
 
 
-#define MODE_DEBUG
+//#define MODE_DEBUG
 
 #ifndef MODE_DEBUG
 #define MODE_TIME
@@ -25,11 +25,12 @@ int main()
 	chrono::system_clock::time_point start, end;
 	LongInt a = "-12345678";
 	LongInt b = "13572468";
-	//a.random(1000000);
-	//b.random(1000000);
+	a.random(1000000);
+	b.random(1000000);
 	//cout << a << " * " << b << " = " << a * b << endl;
 	start = chrono::system_clock::now();
-	factorial(100000);
+	//factorial(1000000);
+	a *= b;
 	end = chrono::system_clock::now();
 	double exetime = static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(end - start).count()) / 1000.0;
 	cout << "execution time : " << exetime << " ms\n";

@@ -9,6 +9,7 @@
 #include<sstream>
 #include<iomanip>
 #include<limits>
+#include<thread>
 
 #define LINT_BASE 100000
 #define LINT_BASE_DNUM 5
@@ -106,8 +107,8 @@ public:
 
 	virtual ~LongInt()noexcept = default;
 
-	LongInt& operator=(const LongInt&)& = default;
-	LongInt& operator=(LongInt&&)& = default;
+	LongInt& operator=(const LongInt&) = default;
+	LongInt& operator=(LongInt&&) = default;
 
 	bool operator<(const LongInt&)const& noexcept;
 	bool operator>(const LongInt&)const& noexcept;
@@ -116,10 +117,10 @@ public:
 	bool operator==(const LongInt&)const& noexcept;
 	bool operator!=(const LongInt&)const& noexcept;
 
-	LongInt& operator++()&;
-	LongInt operator++(int)&;
-	LongInt& operator--()&;
-	LongInt operator--(int)&;
+	LongInt& operator++();
+	LongInt operator++(int);
+	LongInt& operator--();
+	LongInt operator--(int);
 
 	LongInt operator+()const&;
 	LongInt operator-()const&;
@@ -130,16 +131,16 @@ public:
 	LongInt operator/(const LongInt&)const&;//èúéZ
 	LongInt operator%(const LongInt&)const&;//ÉÇÉWÉÖÉãââéZ
 
-	LongInt& operator+=(const LongInt&)&;
-	LongInt& operator-=(const LongInt&)&;
-	LongInt& operator*=(const LongInt&)&;
-	LongInt& operator/=(const LongInt&)&;
-	LongInt& operator%=(const LongInt&)&;
+	LongInt& operator+=(const LongInt&);
+	LongInt& operator-=(const LongInt&);
+	LongInt& operator*=(const LongInt&);
+	LongInt& operator/=(const LongInt&);
+	LongInt& operator%=(const LongInt&);
 
 	long long operator[](std::size_t)const& noexcept;
 
 	//sizeåÖà»â∫ÇÃóêêîÇê∂ê¨
-	void random(std::size_t size)&
+	void random(std::size_t size)
 	{
 		std::size_t i, s = size / LINT_BASE_DNUM + 1;
 		static std::random_device seed;

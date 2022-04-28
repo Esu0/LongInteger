@@ -145,7 +145,7 @@ bool LongInt::operator!=(const LongInt& num2)const& noexcept
 	return !operator==(num2);
 }
 
-LongInt& LongInt::operator++()&
+LongInt& LongInt::operator++()
 {
 	if (is_inf())return *this;
 	if (sign)
@@ -182,14 +182,14 @@ LongInt& LongInt::operator++()&
 	return *this;
 }
 
-LongInt LongInt::operator++(int)&
+LongInt LongInt::operator++(int)
 {
 	LongInt tmp = *this;
 	this->operator++();
 	return tmp;
 }
 
-LongInt& LongInt::operator--()&
+LongInt& LongInt::operator--()
 {
 	if (is_inf())return *this;
 	if (sign)
@@ -226,7 +226,7 @@ LongInt& LongInt::operator--()&
 	return *this;
 }
 
-LongInt LongInt::operator--(int)&
+LongInt LongInt::operator--(int)
 {
 	LongInt tmp = *this;
 	this->operator--();
@@ -270,7 +270,7 @@ LongInt LongInt::operator+(LongInt num)const&
 	return num;
 }
 
-LongInt& LongInt::operator+=(const LongInt& num)&
+LongInt& LongInt::operator+=(const LongInt& num)
 {
 	{
 		bool _inf1 = is_inf(), _inf2 = num.is_inf();
@@ -322,7 +322,7 @@ LongInt LongInt::operator-(LongInt num)const&
 	return num;
 }
 
-LongInt& LongInt::operator-=(const LongInt& num)&
+LongInt& LongInt::operator-=(const LongInt& num)
 {
 	{
 		bool _inf1 = is_inf(), _inf2 = num.is_inf();
@@ -438,8 +438,16 @@ void LongInt::multiply(const std::vector<long long>& num1, const std::vector<lon
 		}
 		long long size_inv1 = number::minv((long long)(size * 2), NTT_PRIME1);
 		long long size_inv2 = number::minv((long long)(size * 2), NTT_PRIME2);
-		ntt1.trans_f(tmp1[0], tmp1[2], tmp2[0], tmp2[2], cnt - 1, 0, size - 1);
-		ntt2.trans_f(tmp1[1], tmp1[3], tmp2[1], tmp2[3], cnt - 1, 0, size - 1);
+		{
+			std::thread th1([&]() {ntt1.trans_f(tmp1[0], cnt - 1, 0, size - 1); ntt1.trans_f(tmp1[2], cnt - 1, 0, size - 1); });
+			std::thread th2([&]() {ntt1.trans_f(tmp2[0], cnt - 1, 0, size - 1); ntt1.trans_f(tmp2[2], cnt - 1, 0, size - 1); });
+			std::thread th3([&]() {ntt2.trans_f(tmp1[1], cnt - 1, 0, size - 1); ntt2.trans_f(tmp1[3], cnt - 1, 0, size - 1); });
+			std::thread th4([&]() {ntt2.trans_f(tmp2[1], cnt - 1, 0, size - 1); ntt2.trans_f(tmp2[3], cnt - 1, 0, size - 1); });
+			th1.join();
+			th2.join();
+			th3.join();
+			th4.join();
+		}
 		for (i = 0; i < size; ++i)
 		{
 			tmp1[0][i] *= tmp2[0][i];
@@ -451,8 +459,16 @@ void LongInt::multiply(const std::vector<long long>& num1, const std::vector<lon
 			tmp1[3][i] *= tmp2[3][i];
 			tmp1[3][i] %= NTT_PRIME2;
 		}
-		ntt1.itrans_t(tmp1[0], tmp1[2], cnt - 1, 0, size - 1);
-		ntt2.itrans_t(tmp1[1], tmp1[3], cnt - 1, 0, size - 1);
+		{
+			std::thread th1([&]() {ntt1.itrans_t(tmp1[0], cnt - 1, 0, size - 1); });
+			std::thread th2([&]() {ntt1.itrans_t(tmp1[2], cnt - 1, 0, size - 1); });
+			std::thread th3([&]() {ntt2.itrans_t(tmp1[1], cnt - 1, 0, size - 1); });
+			std::thread th4([&]() {ntt2.itrans_t(tmp1[3], cnt - 1, 0, size - 1); });
+			th1.join();
+			th2.join();
+			th3.join();
+			th4.join();
+		}
 		result.resize((std::max)(num1.size() + num2.size(), size));
 		_w1 = ntt1.getiRoot(cnt);
 		_w2 = ntt2.getiRoot(cnt);
@@ -492,7 +508,7 @@ LongInt LongInt::operator*(const LongInt& num)const&
 	return tmp;
 }
 
-LongInt& LongInt::operator*=(const LongInt& num)&
+LongInt& LongInt::operator*=(const LongInt& num)
 {
 	if (is_inf())
 	{
@@ -541,7 +557,7 @@ void divide(std::vector<long long>& num1, long long num2)
 	}
 }
 
-LongInt& LongInt::operator/=(const LongInt& num)&
+LongInt& LongInt::operator/=(const LongInt& num)
 {
 	{
 		bool _inf1 = is_inf(), _inf2 = num.is_inf();
@@ -582,6 +598,7 @@ LongInt& LongInt::operator/=(const LongInt& num)&
 	}
 	std::vector<long long> mul = { num.data[num.data.size() - 2],num.data.back() };//numを現在の有効桁数で切り捨てたもの
 	std::vector<long long> inv = { 0,1 }, tmp1, tmp2;
+	LongInt cpy_this = *this;
 	std::size_t sagnif = 2;//有効桁数
 	std::size_t next = 4;//次のループの有効桁数
 	std::size_t i;
@@ -684,10 +701,34 @@ LongInt& LongInt::operator/=(const LongInt& num)&
 	for (i = s; i < data.size(); ++i)data[i - s] = data[i];
 	data.resize(data.size() - s);
 	sign ^= num.sign;
+	LongInt ass = *this * num;
+	ass.absolute();
+	cpy_this.absolute();
+	if (ass > cpy_this)
+	{
+		if (sign)++(*this);
+		else --(*this);
+	}
+	else if (num.sign)
+	{
+		if (ass - num <= cpy_this)
+		{
+			if (sign)--(*this);
+			else ++(*this);
+		}
+	}
+	else
+	{
+		if (ass + num <= cpy_this)
+		{
+			if (sign)--(*this);
+			else ++(*this);
+		}
+	}
 	return *this;
 }
 
-LongInt& LongInt::operator%=(const LongInt& num)&
+LongInt& LongInt::operator%=(const LongInt& num)
 {
 	*this -= (*this / num) * num;
 	return *this;
