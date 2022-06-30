@@ -139,11 +139,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="constants.cpp" />
     <ClCompile Include="LongInt.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="modulo.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="constants.h" />
     <ClInclude Include="fourier_trans.h" />
     <ClInclude Include="LongInt.h" />
     <ClInclude Include="modulo.h" />

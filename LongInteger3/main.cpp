@@ -1,10 +1,9 @@
 #include"LongInt.h"
 #include<iostream>
 #include<chrono>
+#include"constants.h"
 
-
-
-//#define MODE_DEBUG
+#define MODE_DEBUG
 
 #ifndef MODE_DEBUG
 #define MODE_TIME
@@ -14,12 +13,13 @@ using namespace std;
 int main()
 {
 #ifdef MODE_DEBUG
-	LongInt a = -2000300000, b = -2000200;
+	//LongInt a = -2000300000, b = -2000200;
 	
-	a.random(10);
-	b.random(10);
-	a.absolute(); b.absolute();
-	cout << a << " * " << b << " = " << a * b << endl;
+	//a.random(10);
+	//b.random(10);
+	//a.absolute(); b.absolute();
+	//cout << a << " * " << b << " = " << a * b << endl;
+	calc_pi();
 #endif
 #ifdef MODE_TIME
 	chrono::system_clock::time_point start, end;
