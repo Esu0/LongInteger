@@ -2,6 +2,7 @@
 #include<iostream>
 #include<chrono>
 #include"constants.h"
+#include<fstream>
 
 #define MODE_DEBUG
 
@@ -19,7 +20,17 @@ int main()
 	//b.random(10);
 	//a.absolute(); b.absolute();
 	//cout << a << " * " << b << " = " << a * b << endl;
-	calc_pi();
+	//calc_pi();
+	constexpr unsigned int N = 20;
+	frac_lint res = calc_root2(N);
+	LongInt root2 = res.a.shift((long long)(1.5 * (1 << N))) / res.b;
+	std::ofstream ofs;
+	ofs.open("root2.txt", std::ios::out);
+	ofs << root2 << endl;
+	cout << "digit size:" << root2.size() << endl;
+	cout << "result.a size:" << res.a.size() << endl;
+	cout << "result.b size:" << res.b.size() << endl;
+	//ofs << root2 * root2 << endl;
 #endif
 #ifdef MODE_TIME
 	chrono::system_clock::time_point start, end;

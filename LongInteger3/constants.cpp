@@ -1,18 +1,57 @@
 #include"constants.h"
+#include<chrono>
 
 void calc_pi()
 {
-	size_t n = 32;
+	size_t n = 4096;
 	frac_lint_result result;
+	frac_lint root10005 = calc_root(11);
+
+	std::chrono::system_clock::time_point start, end;
+	start = std::chrono::system_clock::now();
+
 	bsa_pi(result, 0, n);
-	LongInt pi = result.Q * ("80019997500624804755833750301086") * "1000000000000000000" * 640320 / (result.T * 12);
+	LongInt pi = (result.Q * root10005.a * 426880).shift(n * 14) / (result.T * root10005.b);
+
+	end = std::chrono::system_clock::now();
+	double exetime = static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(end - start).count()) / 1000;
+
+	std::cout << exetime << "ms" << std::endl;
+
 	std::ofstream ofs;
 	ofs.open("result.txt", std::ios::out);
 	ofs << pi << std::endl;
 	ofs.close();
 }
 
+frac_lint calc_root(unsigned int N)
+{
+	static constexpr unsigned int X = 10005;
+	unsigned int n = 100;
+	LongInt a = n * n + X, b = 2 * n;
+	for (size_t i = 0; i < N; ++i)
+	{
+		LongInt tmp = std::move(a);
+		a = tmp * tmp + b * X * b;
+		b *= tmp * 2;
+	}
+	frac_lint res;
+	res.a = std::move(a); res.b = std::move(b);
+	return res;
+}
 
+frac_lint calc_root2(unsigned int N)
+{
+	frac_lint res;
+	res.a = 99, res.b = 70;
+	for (size_t i = 0; i < N; ++i)
+	{
+		LongInt tmp = std::move(res.a);
+		res.a = tmp * tmp + res.b * 2 * res.b;
+		res.b *= tmp * 2;
+	}
+	return res;
+}
 //[l,r)‚Ì•”•ª”—ñŒvŽZ
 void bsa_pi(frac_lint_result& res, size_t l, size_t r)
 {

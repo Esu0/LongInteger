@@ -734,6 +734,63 @@ LongInt& LongInt::operator%=(const LongInt& num)
 	return *this;
 }
 
+LongInt LongInt::shift(long long amount)const&
+{
+	if (is_inf() || amount == 0)return *this;
+	if (amount > 0)
+	{
+		std::vector<long long> tmp(amount / LINT_BASE_DNUM, 0);
+		tmp.reserve(tmp.size() + this->data.size() + 1);
+		long long carry = 0;
+		long long mul = std::pow(10, (unsigned long long)amount % LINT_BASE_DNUM);
+		for (auto elem : data)
+		{
+			tmp.push_back(elem * mul + carry);
+			carry = tmp.back() / LINT_BASE;
+			tmp.back() %= LINT_BASE;
+		}
+		if (carry != 0)tmp.push_back(carry);
+		LongInt res;
+		res.data = std::move(tmp);
+		res.sign = sign;
+		res.del_zero();
+		return res;
+	}
+	if (data.size() <= (decltype(data)::size_type)(-amount) / LINT_BASE_DNUM)
+	{
+		return LongInt();
+	}
+	else
+	{
+		std::vector<long long> tmp;
+		tmp.reserve(tmp.size() + amount / LINT_BASE_DNUM);
+		long long div = (std::pow)(10, (unsigned long long)(-amount) % LINT_BASE_DNUM);
+		long long brw = data[(-amount) / LINT_BASE_DNUM - 1] % div;
+		for (size_t i = (-amount) / LINT_BASE_DNUM; i < data.size(); ++i)
+		{
+			tmp.push_back(brw + data[i] * div);
+			brw = tmp.back() / LINT_BASE;
+			tmp.back() %= LINT_BASE;
+		}
+		if (brw != 0)tmp.push_back(brw);
+		LongInt res;
+		res.data = std::move(tmp);
+		res.sign = sign;
+		res.del_zero();
+		return res;
+	}
+}
+
+LongInt& LongInt::shift_assign(long long amount)
+{
+	if (is_inf() || amount == 0)return *this;
+	else
+	{
+		*this = this->shift(amount);
+		return *this;
+	}
+}
+
 LongInt(std::pow)(const LongInt& base, unsigned long long expo)
 {
 	if (base.is_inf())return LongInt(base.get_sign() && (bool)(expo % 2), true);

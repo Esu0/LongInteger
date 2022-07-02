@@ -139,6 +139,10 @@ public:
 
 	long long operator[](std::size_t)const& noexcept;
 
+	//正なら左シフト、負なら右シフト
+	LongInt shift(long long)const&;
+	LongInt& shift_assign(long long);
+
 	//size桁以下の乱数を生成
 	void random(std::size_t size)
 	{
@@ -167,6 +171,7 @@ public:
 		sign = 0;
 	}
 
+	//inf or -inf -> true
 	bool is_inf()const&
 	{
 		return (data.size() == 1) && (data[0] == -1);
@@ -175,6 +180,11 @@ public:
 	bool get_sign()const&
 	{
 		return sign;
+	}
+
+	size_t size()const&
+	{
+		return data.size();
 	}
 	void tostring(std::string&)const&;
 };
